@@ -1,8 +1,12 @@
 import axios from 'axios'
 
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/v1`
+  : '/api/v1'
+
 const api = axios.create({
-  baseURL: '/api/v1',
-  withCredentials: true, // sends cookies automatically
+  baseURL: BASE_URL,
+  withCredentials: true,
 })
 
 // attach access token from localStorage to every request
@@ -22,7 +26,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {
-        const res = await axios.post('/api/v1/users/refresh-token', {}, { withCredentials: true })
+        const res = await axios.post(
+          `${BASE_URL}/users/refresh-token`,
+          {},
+          { withCredentials: true }
+        )
         const { accessToken } = res.data.data
         localStorage.setItem('accessToken', accessToken)
         original.headers.Authorization = `Bearer ${accessToken}`

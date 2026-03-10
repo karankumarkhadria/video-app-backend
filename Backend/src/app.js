@@ -12,7 +12,18 @@ import dashboardRouter from "./routes/dashboard.routes.js"
 
 const app = express()
 
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }))
+// app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }))
+app.use(cors({
+  origin: function(origin, callback) {
+    const allowed = process.env.CORS_ORIGIN?.split(",") || []
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+  credentials: true
+}))
 app.use(express.json({ limit: "20kb" }))
 app.use(express.urlencoded({ extended: true, limit: "20kb" }))
 app.use(express.static("public"))
